@@ -98,7 +98,7 @@ namespace Expense_Tracker.Controllers
         public async Task<IActionResult> Create()
         {
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            DateTime currentDate = DateTime.Now;
+            DateTime currentDate = DateTime.UtcNow;
             int monthNumber = currentDate.Month;
             int yearNumber = currentDate.Year;
             string defaultName = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(currentDate.Month) + " " + yearNumber;
@@ -120,7 +120,7 @@ namespace Expense_Tracker.Controllers
         {
             if (ModelState.IsValid)
             {
-                DateTime currentDate = DateTime.Now;
+                DateTime currentDate = DateTime.UtcNow;
                 sheet.Id = Guid.NewGuid();
                 sheet.User = await _userManager.GetUserAsync(HttpContext.User);
                 sheet.CreatedTimestamp = currentDate;

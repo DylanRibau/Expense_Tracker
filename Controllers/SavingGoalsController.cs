@@ -65,7 +65,7 @@ namespace Expense_Tracker.Controllers
             if (ModelState.IsValid)
             {                
                 savingGoal.Id = Guid.NewGuid();
-                savingGoal.CreatedTimestamp = DateTime.Now;
+                savingGoal.CreatedTimestamp = DateTime.UtcNow;
                 savingGoal.User = await _userManager.GetUserAsync(HttpContext.User);
                 _context.Add(savingGoal);
                 await _context.SaveChangesAsync();

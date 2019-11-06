@@ -93,7 +93,7 @@ namespace Expense_Tracker.Controllers
         {
             SheetRecord record = new SheetRecord()
             {
-                Date = DateTime.Now,
+                Date = DateTime.UtcNow,
                 SheetId = sheetId
             };
 
@@ -119,7 +119,7 @@ namespace Expense_Tracker.Controllers
                 }
 
                 sheetRecord.Id = Guid.NewGuid();
-                sheetRecord.CreatedTimestamp = DateTime.Now;
+                sheetRecord.CreatedTimestamp = DateTime.UtcNow;
                 sheetRecord.Type = await _context.RecordTypes.Where(x => x.Id == new Guid(sheetRecord.TypeKey)).FirstOrDefaultAsync();
                 var sheet = await _context.Sheets.FindAsync(sheetRecord.SheetId);
                 sheet.Records.Add(sheetRecord);

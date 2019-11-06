@@ -62,7 +62,7 @@ namespace Expense_Tracker.Controllers
             if (ModelState.IsValid)
             {
                 recordType.Id = Guid.NewGuid();
-                recordType.CreatedTimestamp = DateTime.Now;
+                recordType.CreatedTimestamp = DateTime.UtcNow;
                 recordType.Createduser = await _userManager.GetUserAsync(HttpContext.User);
                 _context.Add(recordType);
                 await _context.SaveChangesAsync();
@@ -103,7 +103,7 @@ namespace Expense_Tracker.Controllers
             {
                 try
                 {
-                    recordType.CreatedTimestamp = DateTime.Now;
+                    recordType.CreatedTimestamp = DateTime.UtcNow;
                     _context.Update(recordType);
                     await _context.SaveChangesAsync();
                 }

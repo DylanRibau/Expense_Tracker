@@ -63,7 +63,7 @@ namespace Expense_Tracker.Controllers
                 TypeOfAccess = type,
                 User = currentUser,
                 User2 = user2,
-                CreatedTimestamp = DateTime.Now
+                CreatedTimestamp = DateTime.UtcNow
 
             };
             _context.Add(connection);

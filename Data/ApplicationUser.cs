@@ -29,7 +29,7 @@ namespace Expense_Tracker.Data
             {
                 if (lastUpdated == null || lastUpdated == DateTime.MinValue)
                 {
-                    lastUpdated = DateTime.Now;
+                    lastUpdated = DateTime.UtcNow;
                 }
                 return lastUpdated;
             }
@@ -45,7 +45,7 @@ namespace Expense_Tracker.Data
             {
                 if (createdTimestamp == null || createdTimestamp == DateTime.MinValue)
                 {
-                    createdTimestamp = DateTime.Now;
+                    createdTimestamp = DateTime.UtcNow;
                 }
                 return createdTimestamp;
             }
