@@ -1,0 +1,48 @@
+﻿@model Expense_Tracker.Data.SearchUsers
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Search Page</h1>
+
+<form asp-action="Search">
+    <div class="form-group">
+        <label asp-for="SearchBy" class="control-label"></label>
+        <input asp-for="SearchBy" class="form-control" />
+        <span asp-validation-for="SearchBy" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Search" class="btn btn-primary" />
+    </div>
+</form>
+<table class="table">
+    <tbody>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].IsPublic)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].LastUpdated)
+            </th>
+        </tr>
+@foreach (var item in Model.Users) {
+        <tr>
+            <td>
+                <a asp-controller="Profile" asp-action="ViewUser" asp-route-id="@item.Id">
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </a>                
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsPublic)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdated)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

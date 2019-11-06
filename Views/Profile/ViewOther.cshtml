@@ -1,0 +1,14 @@
+﻿@model Expense_Tracker.Data.ApplicationUser
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Profile</h1>
+
+<ul>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Sheets" asp-action="IndexConnection" asp-route-id="@Model.Id">Sheets</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="SavingGoals" asp-action="Index">Saving Goals</a>
+    </li>
+</ul>
+

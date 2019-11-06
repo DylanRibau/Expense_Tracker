@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Expense_Tracker.Models.UserConnection>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Add Users</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.User2)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TypeOfAccess)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.User2.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TypeOfAccess)
+            </td>
+            <td>
+                <a asp-action="Change" asp-route-id="@item.Id">Change</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Remove</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

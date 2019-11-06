@@ -1,0 +1,49 @@
+﻿@using Expense_Tracker.Models
+@model Expense_Tracker.Data.SearchUsers
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Search Page</h1>
+
+<form asp-action="Search">
+    <div class="form-group">
+        <label asp-for="SearchBy" class="control-label"></label>
+        <input asp-for="SearchBy" class="form-control" />
+        <span asp-validation-for="SearchBy" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Search" class="btn btn-primary" />
+    </div>
+</form>
+<table class="table">
+    <tbody>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Users[0].UserName)
+            </th>
+            <th>
+                @Html.DisplayName("Add User Access")
+            </th>
+        </tr>
+        @foreach (var item in Model.Users)
+        {
+            <tr>
+                <td>
+                    <a asp-controller="Profile" asp-action="ViewUser" asp-route-id="@item.Id">
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </a>
+                </td>
+                <td>
+                    <a asp-action="AddAccess" asp-route-id="@item.Id" asp-route-type="@TypeOfAccess.ReadOnly">@TypeOfAccess.ReadOnly.ToString()</a> |
+                    <a asp-action="AddAccess" asp-route-id="@item.Id" asp-route-type="@TypeOfAccess.Write">@TypeOfAccess.Write.ToString()</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

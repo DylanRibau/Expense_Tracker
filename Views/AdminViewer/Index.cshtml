@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Expense_Tracker.Models.AdminViewer>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Admins</h1>
+
+<p>
+    <a asp-action="Create">Edit Users</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Admin)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Admin)
+                </td>
+                <td>
+                    @if (User.Identity.Name != item.Admin)
+                    {
+                        <a asp-action="Remove" asp-route-id="@item.User">Remove</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>    
+    <a asp-action="Index" asp-controller="RecordTypes">View Record Types</a>    
+</h3>

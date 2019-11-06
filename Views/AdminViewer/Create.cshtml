@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Expense_Tracker.Models.AdminViewer>
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>Users</h1>
+
+<p>
+    <a asp-action="Index">Go Back</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Admin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FirstName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Admin)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                <a asp-action="Delete" asp-route-id="@item.User">Delete</a> | 
+                <a asp-action="Admin" asp-route-id="@item.User">Add as Admin</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

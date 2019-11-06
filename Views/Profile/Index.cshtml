@@ -1,0 +1,38 @@
+﻿@model Expense_Tracker.Data.ApplicationUser
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Profile</h1>
+
+<div>
+    <div>@Html.DisplayName("Profile Visibility")</div>
+    <div>
+        @if (Model.IsPublic)
+        {
+            @Html.DisplayName("Public")
+        } else
+        {
+            @Html.DisplayName("Private")
+        }
+
+        <a class="nav-link text-dark" asp-action="ChangeVisibility">
+            @if (Model.IsPublic)
+            {
+                @Html.DisplayName("Change to Private")
+            } else
+            {
+                @Html.DisplayName("Change to Public")
+            }
+        </a>
+    </div>
+</div>
+
+<ul>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Sheets" asp-action="Index">Sheets</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="SavingGoals" asp-action="Index">Saving Goals</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="UserConnections" asp-action="Index">Profile Visibility</a>
+    </li>
+</ul>
+
