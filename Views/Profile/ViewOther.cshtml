@@ -5,10 +5,18 @@
 
 <h1>Profile</h1>
 
-<ul>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Sheets" asp-action="IndexConnection" asp-route-id="@Model.Id">Sheets</a>
-        <a class="nav-link text-dark" asp-area="" asp-controller="SavingGoals" asp-action="Index">Saving Goals</a>
-    </li>
-</ul>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <a class="btn btn-primary" asp-area="" asp-controller="Sheets" asp-action="IndexConnection" asp-route-id="@Model.Id">Sheets</a>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="card">
+            <a class="btn btn-primary" asp-area="" asp-controller="SavingGoals" asp-action="Index">Saving Goals</a>
+        </div>
+    </div>
+</div>
+
 
