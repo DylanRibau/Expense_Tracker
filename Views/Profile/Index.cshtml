@@ -3,24 +3,33 @@
     ViewData["Title"] = "Index";
 }
 
+<style>
+    .text-center,.row{
+        margin-bottom: 10px;
+    }
+</style>
+
 <h1>Profile</h1>
 
-<div>
-    <div>@Html.DisplayName("Profile Visibility")</div>
+<div class="text-center">
     <div>
+        @Html.DisplayName("Profile Visibility"):
         @if (Model.IsPublic)
         {
             @Html.DisplayName("Public")
-        } else
+        }
+        else
         {
             @Html.DisplayName("Private")
         }
-
-        <a class="nav-link text-dark" asp-action="ChangeVisibility">
+    </div>
+    <div>
+        <a class="btn btn-secondary" asp-action="ChangeVisibility">
             @if (Model.IsPublic)
             {
                 @Html.DisplayName("Change to Private")
-            } else
+            }
+            else
             {
                 @Html.DisplayName("Change to Public")
             }
@@ -28,11 +37,31 @@
     </div>
 </div>
 
-<ul>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="Sheets" asp-action="Index">Sheets</a>
-        <a class="nav-link text-dark" asp-area="" asp-controller="SavingGoals" asp-action="Index">Saving Goals</a>
-        <a class="nav-link text-dark" asp-area="" asp-controller="UserConnections" asp-action="Index">Profile Visibility</a>
-    </li>
-</ul>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <a class="btn btn-primary" asp-area="" asp-controller="Sheets" asp-action="Index">Sheets</a>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="card">
+            <a class="btn btn-primary" asp-area="" asp-controller="SavingGoals" asp-action="Index">Saving Goals</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <a class="btn btn-primary" asp-area="" asp-controller="UserConnections" asp-action="Index">Profile Visibility</a>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="card">
+            <a class="btn btn-primary" asp-area="" asp-controller="Statistics" asp-action="Index">Statistics</a>
+        </div>
+    </div>
+</div>
 

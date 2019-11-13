@@ -54,8 +54,11 @@ namespace Expense_Tracker.Controllers
                 var resultRemoveFromRoles = await _userManager.RemoveFromRolesAsync(user, userRoles);
 
                 //Remove user records here
-                var savingGoals = await _context.SavingGoals.Where(x => x.User.Id == user.Id).ToListAsync();
-                var userConnection = await _context.UserConnections.Where(x => x.User2 == user || x.User == user).ToListAsync();
+
+                var userConnection = await _context.UserConnections.Where(x => x.User2.Id == user.Id || x.User.Id == user.Id).ToListAsync();
+
+                var savingGoals = await _context.SavingGoals.Where(x => x.User.Id == user.Id).ToListAsync();                             
+                
                 var sheets = await _context.Sheets.Include(x => x.Records).Where(x => x.User.Id == user.Id).ToListAsync();
                 var sheetRecords = new List<SheetRecord>();
                 sheets.ForEach(x => sheetRecords.AddRange(x.Records));
@@ -66,6 +69,7 @@ namespace Expense_Tracker.Controllers
                 sheets.ForEach(x => _context.Entry(x).State = EntityState.Deleted);
 
                 await _context.SaveChangesAsync();
+
                 var resultRemoveUser = await _userManager.DeleteAsync(user);
             }
             return RedirectToAction(nameof(Create));

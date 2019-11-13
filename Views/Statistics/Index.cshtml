@@ -1,0 +1,210 @@
+﻿@model Expense_Tracker.Data.StatisticsClasses.StatisticsView
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', { 'packages': ['corechart'] });
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawChart);
+
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    function drawChart() {
+        DrawMonthly();
+        DrawYearly();
+        DrawRecordInformation();        
+    }
+
+    function DrawMonthly() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Record Type');
+        data.addColumn('number', 'Average');
+        data.addRows([
+            ['Income', @Model.MonthlyStats.AverageIncome],
+            ['Expenses', @Model.MonthlyStats.AverageExpenses]
+        ]);
+
+        var options = {
+            'width': 400,
+            'height': 300
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('monthlyChart'));
+        chart.draw(data, options);
+    }
+
+    function DrawYearly() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Record Type');
+        data.addColumn('number', 'Average');
+        data.addRows([
+            ['Income', @Model.YearlyStats.AverageYearlyIncome],
+            ['Expenses', @Model.YearlyStats.AverageYearlyExpenses]
+        ]);
+
+        var options = {
+            'width': 400,
+            'height': 300
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('yearlyChart'));
+        chart.draw(data, options);
+    }
+
+    function DrawRecordInformation() {
+        var values = new Array();
+        values.push(["Month", "@Model.RecordInfoStats.RecordName"]);
+
+        @foreach(var month in Model.RecordInfoStats.MonthAverages)
+        {
+            @:values.push(["@month.Month", @month.Amount]);
+        }
+
+        console.log(values);
+
+        var data = google.visualization.arrayToDataTable(values);
+
+        var options = {
+            'width': 450,
+            'height': 300
+        };
+
+        if (values.length > 1) {
+            var chart = new google.visualization.LineChart(document.getElementById('recordInformationChart'));
+            chart.draw(data, options);
+        } else {
+            $("#recordInformationChart").text("Please select a valid Record Type");
+        }
+
+
+    }
+
+</script>
+<style>
+    .row{
+        margin-bottom: 10px;
+    }
+</style>
+
+<h1>Statistics</h1>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <h4>Monthly Stats</h4>
+            <table class="table-borderless">
+                <tr>
+                    <td>Average Income</td>
+                    <td>@String.Format("${0}", Model.MonthlyStats.AverageIncome)</td>
+                </tr>
+                <tr>
+                    <td>Average Expenses</td>
+                    <td>@String.Format("${0}", Model.MonthlyStats.AverageExpenses)</td>
+                </tr>
+                <tr>
+                    <td>Income Spent</td>
+                    <td>@String.Format("{0}%", Model.MonthlyStats.IncomeSpent)</td>
+                </tr>
+            </table>
+            <div id="monthlyChart"></div>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="card">
+            <h4>Yearly Stats</h4>
+            <table>
+                <tr>
+                    <td>Average Income</td>
+                    <td>@String.Format("${0}", Model.YearlyStats.AverageYearlyIncome)</td>
+                </tr>
+                <tr>
+                    <td>Average Expenses</td>
+                    <td>@String.Format("${0}", Model.YearlyStats.AverageYearlyExpenses)</td>
+                </tr>
+                <tr>
+                    <td>Income Spent</td>
+                    <td>@String.Format("{0}%", Model.YearlyStats.IncomeSpent)</td>
+                </tr>
+            </table>
+            <div id="yearlyChart"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <h4>Record Information</h4>
+            <form asp-action="RecordInformation">
+                <div class="form-group">
+                    <span>@Html.DropDownListFor(x => x.Types, Model.RecordTypes)</span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+            <div id="recordInformationChart"></div>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="card">
+            <h4>Record Information</h4>
+            <form asp-action="NextMonthProjected">
+                <div class="form-group">
+                    <label asp-for="Projected.IncomeIncrease" class="control-label"></label>
+                    <input asp-for="Projected.IncomeIncrease" class="form-control" type="number" />
+                    <span asp-validation-for="Projected.IncomeIncrease" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Projected.ExpenseIncrease" class="control-label"></label>
+                    <input asp-for="Projected.ExpenseIncrease" class="form-control" type="number" />
+                    <span asp-validation-for="Projected.ExpenseIncrease" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Projected.RecordType" class="control-label"></label>
+                    <span>@Html.DropDownListFor(x => x.Projected.RecordType, Model.RecordTypes)</span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Projected.RecordIncrease" class="control-label"></label>
+                    <input asp-for="Projected.RecordIncrease" class="form-control" type="number" />
+                    <span asp-validation-for="Projected.RecordIncrease" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Calculate" class="btn btn-primary" />
+                </div>
+            </form>
+            <table class="table-borderless">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(x => x.Projected.ProjectedIncome)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(x => x.Projected.ProjectedExpenses)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(x => x.Projected.ProjectedIncomeSpent)
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        $@Html.DisplayFor(x => x.Projected.ProjectedIncome)
+                    </td>
+                    <td>
+                        $@Html.DisplayFor(x => x.Projected.ProjectedExpenses)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(x => x.Projected.ProjectedIncomeSpent)%
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

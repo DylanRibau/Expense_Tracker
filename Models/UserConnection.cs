@@ -22,6 +22,7 @@ namespace Expense_Tracker.Models
     public enum TypeOfAccess
     {
         ReadOnly,
-        Write
+        Write,
+        None
     }
 }

@@ -39,17 +39,12 @@ namespace Expense_Tracker.Controllers
                 return NotFound();
             }
 
-            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
-            Sheet sheet = await _context.Sheets.Where(x => x.Id == id.Value).Include(x => x.User).Include(x => x.Records).ThenInclude(x => x.Type).FirstOrDefaultAsync();
-
-            if (user != sheet.User && !sheet.User.IsPublic)
+            if (await UserAccessSheetLevel(id.Value) == TypeOfAccess.None)
             {
-                UserConnection connection = await _context.UserConnections.Where(x => x.User == sheet.User && x.User2 == user).FirstOrDefaultAsync();
-                if(connection == null)
-                {
-                    return Forbid();
-                }                
+                return Forbid();
             }
+
+            Sheet sheet = await _context.Sheets.Where(x => x.Id == id.Value).Include(x => x.User).Include(x => x.Records).ThenInclude(x => x.Type).FirstOrDefaultAsync();
 
             ICollection<SheetRecord> records = sheet.Records;
 
@@ -76,11 +71,8 @@ namespace Expense_Tracker.Controllers
             {
                 return NotFound();
             }
-
-            Sheet sheet = await _context.Sheets.FindAsync(sheetRecord.SheetId);
-            var isUserSheet = await IsUserSheet(sheet.Id);
-
-            if (!isUserSheet)
+           
+            if(await UserAccessSheetLevel(sheetRecord.SheetId) == TypeOfAccess.None)
             {
                 return Forbid();
             }
@@ -91,6 +83,12 @@ namespace Expense_Tracker.Controllers
         // GET: SheetRecords/Create/5
         public async Task<IActionResult> Create(Guid sheetId)
         {
+            TypeOfAccess accessLevel = await UserAccessSheetLevel(sheetId);
+            if (accessLevel == TypeOfAccess.None || accessLevel == TypeOfAccess.ReadOnly)
+            {
+                return Forbid();
+            }
+
             SheetRecord record = new SheetRecord()
             {
                 Date = DateTime.UtcNow,
@@ -111,9 +109,8 @@ namespace Expense_Tracker.Controllers
         {
             if (ModelState.IsValid)
             {
-                var isUserSheet = await IsUserSheet(sheetRecord.SheetId);
-
-                if (!isUserSheet)
+                TypeOfAccess accessLevel = await UserAccessSheetLevel(sheetRecord.SheetId);
+                if ( accessLevel == TypeOfAccess.None || accessLevel == TypeOfAccess.ReadOnly)
                 {
                     return Forbid();
                 }
@@ -141,25 +138,22 @@ namespace Expense_Tracker.Controllers
 
             var sheetRecord = await _context.SheetRecords.Include(x => x.Type).Where(x => x.Id == id).FirstOrDefaultAsync();
 
+            TypeOfAccess accessLevel = await UserAccessSheetLevel(sheetRecord.SheetId);
+            if (accessLevel == TypeOfAccess.None || accessLevel == TypeOfAccess.ReadOnly)
+            {
+                return Forbid();
+            }
+
             if (sheetRecord == null)
             {
                 return NotFound();
-            }
-
-            Sheet sheet = await _context.Sheets.Where(x => x.Records.Contains(sheetRecord)).FirstOrDefaultAsync<Sheet>();
-
-            var isUserSheet = await IsUserSheet(sheet.Id);
-
-            if (!isUserSheet)
-            {
-                return Forbid();
             }
 
             sheetRecord = await GetRecordTypes(sheetRecord);
 
             sheetRecord.RecordTypes.Where(x => x.Value == sheetRecord.Type.Id.ToString()).FirstOrDefault().Selected = true;
 
-            ViewData["SheetId"] = sheet.Id;
+            ViewData["SheetId"] = sheetRecord.SheetId;
             return View(sheetRecord);
         }
 
@@ -173,20 +167,14 @@ namespace Expense_Tracker.Controllers
             if (id != sheetRecord.Id)
             {
                 return NotFound();
-            }
-
-            var isUserSheet = await IsUserSheet(sheetRecord.SheetId);
-
-            if (!isUserSheet)
-            {
-                return Forbid();
-            }
+            }                      
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     sheetRecord.Type = await _context.RecordTypes.Where(x => x.Id == new Guid(sheetRecord.TypeKey)).FirstOrDefaultAsync();
+
                     _context.Update(sheetRecord);
                     await _context.SaveChangesAsync();
                 }
@@ -215,17 +203,16 @@ namespace Expense_Tracker.Controllers
             }
 
             var sheetRecord = await _context.SheetRecords.Include(x => x.Type).Where(x => x.Id == id).FirstOrDefaultAsync();
+
+            TypeOfAccess accessLevel = await UserAccessSheetLevel(sheetRecord.SheetId);
+            if (accessLevel == TypeOfAccess.None || accessLevel == TypeOfAccess.ReadOnly)
+            {
+                return Forbid();
+            }
+
             if (sheetRecord == null)
             {
                 return NotFound();
-            }
-
-            Sheet sheet = await _context.Sheets.FindAsync(sheetRecord.SheetId);
-            var isUserSheet = await IsUserSheet(sheet.Id);
-
-            if (!isUserSheet)
-            {
-                return Forbid();
             }
 
             return View(sheetRecord);
@@ -238,9 +225,9 @@ namespace Expense_Tracker.Controllers
         {
             SheetRecord sheetRecord = await _context.SheetRecords.FindAsync(id);
             var sheet = await _context.Sheets.Include(x => x.Records).Where(x => x.Id == sheetRecord.SheetId).FirstOrDefaultAsync<Sheet>();
-            var isUserSheet = await IsUserSheet(sheet.Id);
 
-            if (!isUserSheet)
+            TypeOfAccess accessLevel = await UserAccessSheetLevel(sheet.Id);
+            if (accessLevel == TypeOfAccess.None || accessLevel == TypeOfAccess.ReadOnly)
             {
                 return Forbid();
             }
@@ -251,18 +238,16 @@ namespace Expense_Tracker.Controllers
             return RedirectToAction(nameof(Index), new { id = sheet.Id});
         }
 
-        public async Task<FileResult> CsvDownload(Guid? id)
+        public async Task<ActionResult> CsvDownload(Guid? id)
         {
-            if (id == null)
+            if (!id.HasValue)
             {
-                return null;
+                return BadRequest();
             }
 
-            var isUserSheet = await IsUserSheet(id.Value);
-
-            if (!isUserSheet)
+            if (await UserAccessSheetLevel(id.Value) == TypeOfAccess.None)
             {
-                return null;
+                return Forbid();
             }
 
             var sheet = await _context.Sheets.Include(x => x.Records).ThenInclude(x => x.Type).Where(x => x.Id == id).FirstOrDefaultAsync<Sheet>();
@@ -312,6 +297,29 @@ namespace Expense_Tracker.Controllers
             await _context.RecordTypes.ForEachAsync(x => record.RecordTypes.Add(new SelectListItem(x.Description, x.Id.ToString())));
 
             return record;
+        }
+
+        private async Task<TypeOfAccess> UserAccessSheetLevel(Guid sheetId)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
+            Sheet sheet = await _context.Sheets.Where(x => x.Id == sheetId).Include(x => x.User).Include(x => x.Records).ThenInclude(x => x.Type).FirstOrDefaultAsync();
+
+            if (user != sheet.User)
+            {
+                UserConnection connection = await _context.UserConnections.Where(x => x.User == sheet.User && x.User2 == user).FirstOrDefaultAsync();
+                if (connection == null && sheet.User.IsPublic)
+                {
+                    return TypeOfAccess.ReadOnly;
+                } else if(connection == null)
+                {
+                    return TypeOfAccess.None;
+                } else
+                {
+                    return connection.TypeOfAccess;
+                }
+            }
+
+            return TypeOfAccess.Write;
         }
     }
 }
