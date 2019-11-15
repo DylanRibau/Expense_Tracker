@@ -124,8 +124,6 @@ namespace Expense_Tracker.Controllers
                 sheet.Id = Guid.NewGuid();
                 sheet.User = await _userManager.GetUserAsync(HttpContext.User);
                 sheet.CreatedTimestamp = currentDate;
-                //sheet.Month = currentDate.Month;
-                //sheet.Year = currentDate.Year;
                 _context.Add(sheet);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

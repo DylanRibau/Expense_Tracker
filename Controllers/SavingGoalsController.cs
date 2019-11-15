@@ -28,7 +28,47 @@ namespace Expense_Tracker.Controllers
             ApplicationUser user = await _userManager.GetUserAsync(HttpContext.User);
             var savingGoals = await _context.SavingGoals.Where(x => x.User == user).ToListAsync();
             savingGoals.ForEach(x => x.PercentageComplete = (int) (x.AmountSaved / x.Amount * 100));
-            return View(savingGoals);
+            return View(new SavingGoalView()
+            {
+                Id = new Guid(),
+                AccessingUser = user,
+                SavingsGoalUser = user,
+                AccessLevel = TypeOfAccess.Write,
+                Goals = savingGoals
+            });
+        }
+
+        public async Task<IActionResult> IndexConnection(Guid id)
+        {
+            ApplicationUser savingsUser = await _userManager.FindByIdAsync(id.ToString());
+            ApplicationUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            UserConnection connection = await _context.UserConnections.Where(x => x.User == savingsUser && x.User2 == currentUser).FirstOrDefaultAsync();
+            var savingGoals = await _context.SavingGoals.Where(x => x.User == savingsUser).ToListAsync();
+            savingGoals.ForEach(x => x.PercentageComplete = (int) (x.AmountSaved / x.Amount * 100));
+            TypeOfAccess accessLevel;
+            if (connection != null)
+            {
+                accessLevel = connection.TypeOfAccess;
+            }
+            else
+            {
+                if (!savingsUser.IsPublic)
+                {
+                    return Forbid();
+                }
+                else
+                {
+                    accessLevel = TypeOfAccess.ReadOnly;
+                }
+            }
+
+            return View("Index", new SavingGoalView()
+            {
+                AccessingUser = currentUser,
+                SavingsGoalUser = savingsUser,
+                AccessLevel = accessLevel,
+                Goals = savingGoals
+            });
         }
 
         // GET: SavingGoals/Details/5
